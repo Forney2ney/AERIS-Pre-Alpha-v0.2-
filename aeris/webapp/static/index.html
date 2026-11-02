@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AERIS — Computational Aero Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">AERIS</div>
+      <div class="brand-sub">computational aero lab &middot; v0.1</div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item active" data-module="airfoil">
+        <span class="nav-tag">AF</span> Airfoil + Biomimicry
+      </button>
+      <button class="nav-item" data-module="winglet">
+        <span class="nav-tag">WL</span> Adaptive Winglet
+      </button>
+      <button class="nav-item" data-module="aircraft">
+        <span class="nav-tag">AC</span> Full Aircraft
+      </button>
+      <button class="nav-item" data-module="logbook">
+        <span class="nav-tag">LB</span> Logbook
+      </button>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="status-row"><span class="status-dot"></span> core engine online</div>
+      <div class="foot-note">one knowledge base &middot; three modules &middot; growing</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- AIRFOIL PANEL -->
+    <section class="panel" id="panel-airfoil">
+      <header class="panel-head">
+        <h1>Airfoil + Biomimicry Designer</h1>
+        <p>Optimizes a 2D wing section using thin-airfoil-theory physics, with
+           optional whale-fin-inspired tubercles on the leading edge.</p>
+      </header>
+
+      <div class="workspace">
+        <div class="card controls">
+          <h2>Flight condition</h2>
+          <label>Angle of attack (deg)
+            <input type="number" id="af-alpha" value="6" step="0.5">
+          </label>
+          <label>Velocity (m/s)
+            <input type="number" id="af-velocity" value="12" step="0.5">
+          </label>
+          <label>Chord length (m)
+            <input type="number" id="af-chord" value="0.15" step="0.01">
+          </label>
+          <label>Span for 3D export (m)
+            <input type="number" id="af-span" value="0.3" step="0.05">
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="af-bio" checked>
+            Enable tubercle biomimicry variables
+          </label>
+          <button class="run-btn" id="af-run">Run optimization</button>
+          <div class="hint" id="af-hint"></div>
+        </div>
+
+        <div class="card readout">
+          <h2>Optimization trace</h2>
+          <canvas id="af-canvas" width="560" height="180"></canvas>
+          <h2>Airfoil Polars</h2>
+          <div class="polar-plots">
+            <canvas id="af-polar-cl" width="560" height="180" title="CL vs Alpha"></canvas>
+            <canvas id="af-polar-cd" width="560" height="180" title="CD vs Alpha"></canvas>
+            <canvas id="af-polar-ld" width="560" height="180" title="L/D vs Alpha"></canvas>
+            <canvas id="af-polar-cm" width="560" height="180" title="Cm vs Alpha"></canvas>
+          </div>
+          <h2>Best design found</h2>
+          <div class="metrics-grid" id="af-metrics">
+            <div class="metric-empty">Run an optimization to see results.</div>
+          </div>
+          <div class="export-row" id="af-export" style="display:none;">
+            <button data-filetype="dxf" class="export-btn" id="af-dxf">Download DXF</button>
+            <button data-filetype="stl" class="export-btn" id="af-stl">Download STL</button>
+            <span class="run-id-note" id="af-runid"></span>
+          </div>
+          <div class="physics-health-panel" id="af-physics-health" style="display:none;">
+            <details open>
+              <summary>Physics Health <span id="af-physics-badge"></span></summary>
+              <div id="af-physics-content"></div>
+            </details>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WINGLET PANEL -->
+    <section class="panel hidden" id="panel-winglet">
+      <header class="panel-head">
+        <h1>Adaptive Winglet Designer</h1>
+        <p>Optimizes winglet height, cant angle, and taper against a fixed
+           baseline wing, for minimum induced drag.</p>
+      </header>
+
+      <div class="workspace">
+        <div class="card controls">
+          <h2>Baseline wing</h2>
+          <label>Span (m)
+            <input type="number" id="wl-span" value="1.2" step="0.05">
+          </label>
+          <label>Wing area (m&sup2;)
+            <input type="number" id="wl-area" value="0.18" step="0.01">
+          </label>
+          <label>Operating CL
+            <input type="number" id="wl-cl" value="0.55" step="0.01">
+          </label>
+          <label>Baseline CD0
+            <input type="number" id="wl-cd0" value="0.02" step="0.001">
+          </label>
+          <button class="run-btn" id="wl-run">Run optimization</button>
+          <div class="hint" id="wl-hint"></div>
+        </div>
+
+        <div class="card readout">
+          <h2>Optimization trace</h2>
+          <canvas id="wl-canvas" width="560" height="180"></canvas>
+          <h2>Best design found</h2>
+          <div class="metrics-grid" id="wl-metrics">
+            <div class="metric-empty">Run an optimization to see results.</div>
+          </div>
+          <div class="export-row" id="wl-export" style="display:none;">
+            <span class="run-id-note" id="wl-runid"></span>
+          </div>
+          <div class="physics-health-panel" id="wl-physics-health" style="display:none;">
+            <details open>
+              <summary>Physics Health <span id="wl-physics-badge"></span></summary>
+              <div id="wl-physics-content"></div>
+            </details>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AIRCRAFT PANEL -->
+    <section class="panel hidden" id="panel-aircraft">
+      <header class="panel-head">
+        <h1>Full Aircraft (Flying Wing) Designer</h1>
+        <p>Optimizes 10 variables at once — span, taper, sweep, washout,
+           camber, winglet geometry, and angle of attack — built out of the
+           same physics as the other two modules.</p>
+      </header>
+
+      <div class="workspace">
+        <div class="card controls">
+          <h2>Mission condition</h2>
+          <label>Cruise velocity (m/s)
+            <input type="number" id="ac-velocity" value="10" step="0.5">
+          </label>
+          <label>Target CL
+            <input type="number" id="ac-clt" value="0.6" step="0.05">
+          </label>
+          <label>Altitude (m)
+            <input type="number" id="ac-alt" value="0" step="50">
+          </label>
+          <button class="run-btn" id="ac-run">Run optimization</button>
+          <div class="hint" id="ac-hint">This searches 10 variables — expect 1&ndash;3 minutes.</div>
+        </div>
+
+        <div class="card readout">
+          <h2>Optimization trace</h2>
+          <canvas id="ac-canvas" width="560" height="180"></canvas>
+          <h2>Best design found</h2>
+          <div class="metrics-grid" id="ac-metrics">
+            <div class="metric-empty">Run an optimization to see results.</div>
+          </div>
+          <div class="export-row" id="ac-export" style="display:none;">
+            <button data-filetype="stl" class="export-btn" id="ac-stl">Download STL (wing loft)</button>
+            <span class="run-id-note" id="ac-runid"></span>
+          </div>
+          <div class="physics-health-panel" id="ac-physics-health" style="display:none;">
+            <details open>
+              <summary>Physics Health <span id="ac-physics-badge"></span></summary>
+              <div id="ac-physics-content"></div>
+            </details>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOGBOOK PANEL -->
+    <section class="panel hidden" id="panel-logbook">
+      <header class="panel-head">
+        <h1>Logbook</h1>
+        <p>Every run you've generated, and the feedback loop: record a real
+           measurement against any run to see prediction error.</p>
+      </header>
+
+      <div class="workspace single">
+        <div class="card">
+          <h2>Record a measurement</h2>
+          <label>Run ID
+            <input type="text" id="lb-runid" placeholder="e.g. 8fe8bccc">
+          </label>
+          <div class="measured-grid">
+            <label>Measured CL <input type="number" id="lb-cl" step="0.01"></label>
+            <label>Measured CD <input type="number" id="lb-cd" step="0.001"></label>
+            <label>Measured L/D <input type="number" id="lb-ld" step="0.1"></label>
+          </div>
+          <button class="run-btn" id="lb-submit">Save measurement</button>
+          <div class="hint" id="lb-hint"></div>
+        </div>
+
+        <div class="card">
+          <h2>All runs</h2>
+          <div id="lb-table"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
